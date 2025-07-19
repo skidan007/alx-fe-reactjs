@@ -15,10 +15,11 @@ function App() {
   return (
     <>
       
-      <Counter />
+     
       <WelcomeMessage />
       <Header />
       <MainContent />
+       <Counter />
       <UserProfile name="Alice" age="25" bio="Loves hiking and photography" />
       <Footer />
 
