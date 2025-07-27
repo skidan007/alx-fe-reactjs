@@ -1,5 +1,5 @@
-import { Link } from 'react-router-dom';
-import { useRecipeStore } from '../store/recipeStore';
+import { Link } from "react-router-dom";
+import { useRecipeStore } from "../store/recipeStore";
 
 export default function RecipeList() {
   const filteredRecipes = useRecipeStore((state) => state.filteredRecipes);
@@ -18,6 +18,14 @@ export default function RecipeList() {
           </div>
         ))
       )}
+      const isFavorite = favorites.includes(recipe.id);
+      <button
+        onClick={() => {
+          isFavorite ? removeFavorite(recipe.id) : addFavorite(recipe.id);
+        }}
+      >
+        {isFavorite ? "★ Remove from Favorites" : "☆ Add to Favorites"}
+      </button>
     </div>
   );
 }
