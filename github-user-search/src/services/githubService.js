@@ -1,6 +1,17 @@
 import axios from 'axios';
 
-// Advanced search using GitHub Search API
+// ✅ Basic user fetch by username
+export const fetchUserData = async (username) => {
+  const url = `https://api.github.com/users/${username}`;
+  try {
+    const response = await axios.get(url);
+    return response.data;
+  } catch (error) {
+    throw new Error('User not found');
+  }
+};
+
+// ✅ Advanced user search using query (username, location, minRepos, etc.)
 export const fetchUsersAdvanced = async (username, location = '', minRepos = '', page = 1) => {
   let query = `${username} in:login`;
   if (location) query += ` location:${location}`;
@@ -14,10 +25,5 @@ export const fetchUsersAdvanced = async (username, location = '', minRepos = '',
   } catch (error) {
     throw new Error('User not found');
   }
-  const headers = {
-  Authorization: `Bearer ${import.meta.env.VITE_GITHUB_TOKEN}`,
 };
 
-const response = await axios.get(url, { headers });
-
-};
