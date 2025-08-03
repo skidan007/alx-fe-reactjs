@@ -26,7 +26,7 @@ const Search = () => {
       setResults(data.items);
       setHasMore(data.total_count > data.items.length);
     } catch (err) {
-      setError("Looks like we can’t find the user.");
+      setError("Looks like we cant find the user.");
     } finally {
       setLoading(false);
     }
