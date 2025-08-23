@@ -11,8 +11,10 @@ const fetchPosts = async () => {
 
 const PostsComponent = () => {
   const [showPosts, setShowPosts] = useState(true)
+  const [currentPage, setCurrentPage] = useState(1)
+  const postsPerPage = 6
 
-  // Using React Query to fetch posts
+  // Using React Query to fetch posts with advanced options
   const {
     data: posts,
     isLoading,
@@ -20,18 +22,32 @@ const PostsComponent = () => {
     error,
     refetch,
     isFetching,
+    isPreviousData,
   } = useQuery({
-    queryKey: ['posts'],
+    queryKey: ['posts', currentPage],
     queryFn: fetchPosts,
     staleTime: 30000, // 30 seconds
+    cacheTime: 10 * 60 * 1000, // 10 minutes cache time
+    refetchOnWindowFocus: true, // Refetch when window gains focus
+    keepPreviousData: true, // Keep previous data while fetching new data
   })
+
+  // Calculate paginated posts
+  const paginatedPosts = posts?.slice(0, currentPage * postsPerPage) || []
 
   // Toggle component visibility to demonstrate caching
   const toggleVisibility = () => {
     setShowPosts(!showPosts)
   }
 
-  if (isLoading) {
+  // Load more posts for pagination
+  const loadMorePosts = () => {
+    if (posts && currentPage * postsPerPage < posts.length) {
+      setCurrentPage(prev => prev + 1)
+    }
+  }
+
+  if (isLoading && !isPreviousData) {
     return (
       <div className="posts-container">
         <div className="loading">Loading posts...</div>
@@ -51,7 +67,12 @@ const PostsComponent = () => {
     return (
       <div className="posts-container">
         <div className="error">Error: {error.message}</div>
-        <button onClick={refetch}>Retry</button>
+        <div className="controls">
+          <button onClick={refetch}>Retry</button>
+          <button onClick={toggleVisibility}>
+            {showPosts ? 'Hide Posts' : 'Show Posts'}
+          </button>
+        </div>
       </div>
     )
   }
@@ -66,31 +87,65 @@ const PostsComponent = () => {
           {showPosts ? 'Hide Posts' : 'Show Posts'}
         </button>
         <span className="cache-info">
-          {isFetching ? 'Fetching...' : 'Data is cached'}
+          {isFetching ? 'Fetching...' : `Cached (${posts?.length} posts)`}
+        </span>
+        <span className="window-focus-info">
+          Refetch on window focus: {refetchOnWindowFocus ? 'Enabled' : 'Disabled'}
         </span>
       </div>
 
       {showPosts && (
         <div className="posts-list">
-          <h2>Posts ({posts?.length || 0})</h2>
+          <h2>Posts ({paginatedPosts.length} of {posts?.length || 0})</h2>
+          
           <div className="posts-grid">
-            {posts?.slice(0, 12).map((post) => (
+            {paginatedPosts.map((post) => (
               <div key={post.id} className="post-card">
                 <h3>{post.title}</h3>
                 <p className="post-body">{post.body}</p>
                 <span className="post-id">ID: {post.id}</span>
+                <span className="post-user">User: {post.userId}</span>
               </div>
             ))}
           </div>
+
+          {posts && currentPage * postsPerPage < posts.length && (
+            <div className="pagination-controls">
+              <button 
+                onClick={loadMorePosts} 
+                disabled={isFetching}
+                className="load-more-btn"
+              >
+                {isFetching ? 'Loading...' : 'Load More Posts'}
+              </button>
+              <span className="pagination-info">
+                Showing {paginatedPosts.length} of {posts.length} posts
+                {isPreviousData && ' (showing previous data)'}
+              </span>
+            </div>
+          )}
         </div>
       )}
 
       {!showPosts && (
         <div className="hidden-state">
-          <p>Posts are hidden. The data is still cached by React Query!</p>
+          <h3>Posts are hidden</h3>
+          <p>The data is still cached by React Query for 10 minutes!</p>
           <p>Toggle visibility to see how cached data loads instantly.</p>
+          <p>Try switching browser tabs and coming back - it will refetch due to window focus!</p>
         </div>
       )}
+
+      <div className="features-demo">
+        <h3>React Query Features Demonstrated:</h3>
+        <ul>
+          <li>✅ <strong>cacheTime: 10 minutes</strong> - Data stays cached for 10 minutes</li>
+          <li>✅ <strong>refetchOnWindowFocus: true</strong> - Refetches when window gains focus</li>
+          <li>✅ <strong>keepPreviousData: true</strong> - Shows old data while fetching new data</li>
+          <li>✅ <strong>staleTime: 30 seconds</strong> - Data becomes stale after 30 seconds</li>
+          <li>✅ Automatic caching and background updates</li>
+        </ul>
+      </div>
     </div>
   )
 }
