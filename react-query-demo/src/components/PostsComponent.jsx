@@ -1,102 +1,98 @@
-import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { useState, useMemo } from 'react'
+import { useQuery } from '@tanstack/react-query'
+import axios from 'axios'
+import { useState } from 'react'
+import './PostsComponent.css'
 
-const POSTS_URL = 'https://jsonplaceholder.typicode.com/posts'
-
-// A tiny fetcher that supports abort via the signal provided by React Query
-async function fetchPosts({ signal }) {
-  const res = await fetch(POSTS_URL, { signal })
-  if (!res.ok) throw new Error(`Failed to fetch posts: ${res.status}`)
-  return res.json()
+// API service function
+const fetchPosts = async () => {
+  const { data } = await axios.get('https://jsonplaceholder.typicode.com/posts')
+  return data
 }
 
-export default function PostsComponent() {
-  const queryClient = useQueryClient()
-  const [filter, setFilter] = useState('')
+const PostsComponent = () => {
+  const [showPosts, setShowPosts] = useState(true)
 
+  // Using React Query to fetch posts
   const {
     data: posts,
-    error,
-    isError,
     isLoading,
-    isFetching, // true during background refetches
+    isError,
+    error,
     refetch,
+    isFetching,
   } = useQuery({
     queryKey: ['posts'],
     queryFn: fetchPosts,
-    // Keep showing previous data instantly on remounts while fetching fresh in bg
-    placeholderData: (prev) => prev ?? [],
-    // Select lets us transform data without re-rendering consumers elsewhere
-    select: (data) => data.slice(0, 30), // demo: only first 30
+    staleTime: 30000, // 30 seconds
   })
 
-  const filtered = useMemo(() => {
-    if (!posts) return []
-    const q = filter.trim().toLowerCase()
-    if (!q) return posts
-    return posts.filter(p =>
-      p.title.toLowerCase().includes(q) || String(p.id).includes(q)
-    )
-  }, [posts, filter])
+  // Toggle component visibility to demonstrate caching
+  const toggleVisibility = () => {
+    setShowPosts(!showPosts)
+  }
 
   if (isLoading) {
     return (
-      <div className="p-4">
-        <h2>Posts</h2>
-        <p>Loading…</p>
+      <div className="posts-container">
+        <div className="loading">Loading posts...</div>
+        <div className="controls">
+          <button onClick={refetch} disabled={isFetching}>
+            {isFetching ? 'Refreshing...' : 'Refresh Data'}
+          </button>
+          <button onClick={toggleVisibility}>
+            {showPosts ? 'Hide Posts' : 'Show Posts'}
+          </button>
+        </div>
       </div>
     )
   }
 
   if (isError) {
     return (
-      <div className="p-4">
-        <h2>Posts</h2>
-        <p style={{ color: 'crimson' }}>Error: {error.message}</p>
-        <button onClick={() => refetch()}>Try again</button>
+      <div className="posts-container">
+        <div className="error">Error: {error.message}</div>
+        <button onClick={refetch}>Retry</button>
       </div>
     )
   }
 
   return (
-    <div className="p-4" style={{ display: 'grid', gap: 12 }}>
-      <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-        <h2 style={{ margin: 0 }}>Posts</h2>
-        {isFetching && <small>(refreshing…)</small>}
+    <div className="posts-container">
+      <div className="controls">
+        <button onClick={refetch} disabled={isFetching}>
+          {isFetching ? 'Refreshing...' : 'Refresh Data'}
+        </button>
+        <button onClick={toggleVisibility}>
+          {showPosts ? 'Hide Posts' : 'Show Posts'}
+        </button>
+        <span className="cache-info">
+          {isFetching ? 'Fetching...' : 'Data is cached'}
+        </span>
       </div>
 
-      <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-        <input
-          placeholder="Filter by title or id…"
-          value={filter}
-          onChange={(e) => setFilter(e.target.value)}
-          style={{ padding: 8, flex: 1 }}
-        />
-        <button onClick={() => refetch()}>Refetch</button>
-        <button onClick={() => queryClient.invalidateQueries({ queryKey: ['posts'] })}>
-          Invalidate
-        </button>
-        <button
-          onClick={async () => {
-            // prefetch keeps data warm in the cache without mounting the component
-            await queryClient.prefetchQuery({ queryKey: ['posts'], queryFn: fetchPosts })
-            alert('Prefetched posts into cache!')
-          }}
-        >
-          Prefetch
-        </button>
-      </div>
+      {showPosts && (
+        <div className="posts-list">
+          <h2>Posts ({posts?.length || 0})</h2>
+          <div className="posts-grid">
+            {posts?.slice(0, 12).map((post) => (
+              <div key={post.id} className="post-card">
+                <h3>{post.title}</h3>
+                <p className="post-body">{post.body}</p>
+                <span className="post-id">ID: {post.id}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
-      <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'grid', gap: 8 }}>
-        {filtered.map((p) => (
-          <li key={p.id} style={{ border: '1px solid #eee', borderRadius: 8, padding: 12 }}>
-            <strong>#{p.id}:</strong> {p.title}
-            <p style={{ marginTop: 8 }}>{p.body}</p>
-          </li>
-        ))}
-      </ul>
-
-      {!filtered.length && <p>No results.</p>}
+      {!showPosts && (
+        <div className="hidden-state">
+          <p>Posts are hidden. The data is still cached by React Query!</p>
+          <p>Toggle visibility to see how cached data loads instantly.</p>
+        </div>
+      )}
     </div>
   )
 }
+
+export default PostsComponent

@@ -1,27 +1,27 @@
-// src/App.jsx
-import { useState } from 'react'
-import PostsComponent from './components/PostsComponent.jsx'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import PostsComponent from './components/PostsComponent'
+import './App.css'
 
-export default function App() {
-  const [route, setRoute] = useState('home')
+// Create a QueryClient instance
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000, // 5 minutes
+      cacheTime: 10 * 60 * 1000, // 10 minutes
+      retry: 2, // Retry failed requests 2 times
+    },
+  },
+})
 
+function App() {
   return (
-    <div style={{ padding: 16, display: 'grid', gap: 16 }}>
-      <nav style={{ display: 'flex', gap: 8 }}>
-        <button onClick={() => setRoute('home')}>Home</button>
-        <button onClick={() => setRoute('posts')}>Posts</button>
-      </nav>
-
-      {route === 'home' && (
-        <section>
-          <h1>React Query Demo</h1>
-          <p>
-            Use the navigation above to open <strong>Posts</strong>.
-          </p>
-        </section>
-      )}
-
-      {route === 'posts' && <PostsComponent />}
-    </div>
+    <QueryClientProvider client={queryClient}>
+      <div className="app">
+        <h1>React Query Demo - Posts</h1>
+        <PostsComponent />
+      </div>
+    </QueryClientProvider>
   )
 }
+
+export default App
