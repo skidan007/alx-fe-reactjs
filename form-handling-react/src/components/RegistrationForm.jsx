@@ -1,47 +1,54 @@
 import React, { useState } from 'react';
 
 const RegistrationForm = () => {
-  const [formData, setFormData] = useState({
-    username: '',
-    email: '',
-    password: ''
-  });
+  // State for form data
+  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  
+  // State for errors and submission status
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitMessage, setSubmitMessage] = useState('');
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-    
-    // Clear error when user starts typing
-    if (errors[name]) {
-      setErrors(prev => ({
-        ...prev,
-        [name]: ''
-      }));
+  // Individual change handlers for each input
+  const handleUsernameChange = (e) => {
+    setUsername(e.target.value);
+    if (errors.username) {
+      setErrors(prev => ({ ...prev, username: '' }));
+    }
+  };
+
+  const handleEmailChange = (e) => {
+    setEmail(e.target.value);
+    if (errors.email) {
+      setErrors(prev => ({ ...prev, email: '' }));
+    }
+  };
+
+  const handlePasswordChange = (e) => {
+    setPassword(e.target.value);
+    if (errors.password) {
+      setErrors(prev => ({ ...prev, password: '' }));
     }
   };
 
   const validateForm = () => {
     const newErrors = {};
     
-    if (!formData.username.trim()) {
+    if (!username.trim()) {
       newErrors.username = 'Username is required';
     }
     
-    if (!formData.email.trim()) {
+    if (!email.trim()) {
       newErrors.email = 'Email is required';
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+    } else if (!/\S+@\S+\.\S+/.test(email)) {
       newErrors.email = 'Email is invalid';
     }
     
-    if (!formData.password) {
+    if (!password) {
       newErrors.password = 'Password is required';
-    } else if (formData.password.length < 6) {
+    } else if (password.length < 6) {
       newErrors.password = 'Password must be at least 6 characters';
     }
     
@@ -67,12 +74,15 @@ const RegistrationForm = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({ username, email, password }),
       });
       
       if (response.ok) {
         setSubmitMessage('Registration successful!');
-        setFormData({ username: '', email: '', password: '' });
+        // Reset form fields
+        setUsername('');
+        setEmail('');
+        setPassword('');
       } else {
         throw new Error('Registration failed');
       }
@@ -85,8 +95,9 @@ const RegistrationForm = () => {
 
   return (
     <div style={{ maxWidth: '400px', margin: '2rem auto', padding: '2rem', border: '1px solid #ccc', borderRadius: '8px' }}>
-      <h2>User Registration (Controlled)</h2>
+      <h2>User Registration (Controlled Components)</h2>
       <form onSubmit={handleSubmit}>
+        {/* Username Field */}
         <div style={{ marginBottom: '1rem' }}>
           <label htmlFor="username" style={{ display: 'block', marginBottom: '0.5rem' }}>
             Username:
@@ -95,13 +106,23 @@ const RegistrationForm = () => {
             type="text"
             id="username"
             name="username"
-            value={formData.username} // Added missing value attribute
-            onChange={handleChange}
-            style={{ width: '100%', padding: '0.5rem', border: errors.username ? '1px solid red' : '1px solid #ccc', borderRadius: '4px' }}
+            value={username} // Controlled value
+            onChange={handleUsernameChange}
+            style={{ 
+              width: '100%', 
+              padding: '0.5rem', 
+              border: errors.username ? '1px solid red' : '1px solid #ccc', 
+              borderRadius: '4px' 
+            }}
           />
-          {errors.username && <span style={{ color: 'red', fontSize: '0.8rem' }}>{errors.username}</span>}
+          {errors.username && (
+            <span style={{ color: 'red', fontSize: '0.8rem' }}>
+              {errors.username}
+            </span>
+          )}
         </div>
 
+        {/* Email Field */}
         <div style={{ marginBottom: '1rem' }}>
           <label htmlFor="email" style={{ display: 'block', marginBottom: '0.5rem' }}>
             Email:
@@ -110,13 +131,23 @@ const RegistrationForm = () => {
             type="email"
             id="email"
             name="email"
-            value={formData.email} // Added missing value attribute
-            onChange={handleChange}
-            style={{ width: '100%', padding: '0.5rem', border: errors.email ? '1px solid red' : '1px solid #ccc', borderRadius: '4px' }}
+            value={email} // Controlled value
+            onChange={handleEmailChange}
+            style={{ 
+              width: '100%', 
+              padding: '0.5rem', 
+              border: errors.email ? '1px solid red' : '1px solid #ccc', 
+              borderRadius: '4px' 
+            }}
           />
-          {errors.email && <span style={{ color: 'red', fontSize: '0.8rem' }}>{errors.email}</span>}
+          {errors.email && (
+            <span style={{ color: 'red', fontSize: '0.8rem' }}>
+              {errors.email}
+            </span>
+          )}
         </div>
 
+        {/* Password Field */}
         <div style={{ marginBottom: '1rem' }}>
           <label htmlFor="password" style={{ display: 'block', marginBottom: '0.5rem' }}>
             Password:
@@ -125,13 +156,23 @@ const RegistrationForm = () => {
             type="password"
             id="password"
             name="password"
-            value={formData.password} // Added missing value attribute
-            onChange={handleChange}
-            style={{ width: '100%', padding: '0.5rem', border: errors.password ? '1px solid red' : '1px solid #ccc', borderRadius: '4px' }}
+            value={password} // Controlled value
+            onChange={handlePasswordChange}
+            style={{ 
+              width: '100%', 
+              padding: '0.5rem', 
+              border: errors.password ? '1px solid red' : '1px solid #ccc', 
+              borderRadius: '4px' 
+            }}
           />
-          {errors.password && <span style={{ color: 'red', fontSize: '0.8rem' }}>{errors.password}</span>}
+          {errors.password && (
+            <span style={{ color: 'red', fontSize: '0.8rem' }}>
+              {errors.password}
+            </span>
+          )}
         </div>
 
+        {/* Submit Button */}
         <button
           type="submit"
           disabled={isSubmitting}
@@ -148,8 +189,12 @@ const RegistrationForm = () => {
           {isSubmitting ? 'Registering...' : 'Register'}
         </button>
 
+        {/* Submission Message */}
         {submitMessage && (
-          <div style={{ marginTop: '1rem', color: submitMessage.includes('successful') ? 'green' : 'red' }}>
+          <div style={{ 
+            marginTop: '1rem', 
+            color: submitMessage.includes('successful') ? 'green' : 'red' 
+          }}>
             {submitMessage}
           </div>
         )}
