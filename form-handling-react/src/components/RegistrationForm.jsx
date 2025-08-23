@@ -36,20 +36,17 @@ const RegistrationForm = () => {
   const validateForm = () => {
     const newErrors = {};
     
+    // Basic validation: check if fields are empty
     if (!username.trim()) {
       newErrors.username = 'Username is required';
     }
     
     if (!email.trim()) {
       newErrors.email = 'Email is required';
-    } else if (!/\S+@\S+\.\S+/.test(email)) {
-      newErrors.email = 'Email is invalid';
     }
     
     if (!password) {
       newErrors.password = 'Password is required';
-    } else if (password.length < 6) {
-      newErrors.password = 'Password must be at least 6 characters';
     }
     
     return newErrors;
@@ -66,6 +63,7 @@ const RegistrationForm = () => {
     
     setIsSubmitting(true);
     setErrors({});
+    setSubmitMessage('');
     
     try {
       // Mock API call
@@ -106,7 +104,7 @@ const RegistrationForm = () => {
             type="text"
             id="username"
             name="username"
-            value={username} // Controlled value
+            value={username}
             onChange={handleUsernameChange}
             style={{ 
               width: '100%', 
@@ -131,7 +129,7 @@ const RegistrationForm = () => {
             type="email"
             id="email"
             name="email"
-            value={email} // Controlled value
+            value={email}
             onChange={handleEmailChange}
             style={{ 
               width: '100%', 
@@ -156,7 +154,7 @@ const RegistrationForm = () => {
             type="password"
             id="password"
             name="password"
-            value={password} // Controlled value
+            value={password}
             onChange={handlePasswordChange}
             style={{ 
               width: '100%', 
