@@ -1,86 +1,129 @@
-import React from "react";
-import { Formik, Form, Field, ErrorMessage } from "formik";
-import * as Yup from "yup";
+import React from 'react';
+import { Formik, Form, Field, ErrorMessage } from 'formik';
+import * as Yup from 'yup';
 
-export default function FormikForm() {
-  const initialValues = { username: "", email: "", password: "" };
+const FormikForm = () => {
+  const initialValues = {
+    username: '',
+    email: '',
+    password: ''
+  };
 
   const validationSchema = Yup.object({
-    username: Yup.string().required("Username is required"),
-    email: Yup.string().email("Invalid email").required("Email is required"),
+    username: Yup.string()
+      .required('Username is required')
+      .min(3, 'Username must be at least 3 characters'),
+    email: Yup.string()
+      .email('Invalid email address')
+      .required('Email is required'),
     password: Yup.string()
-      .min(6, "Password must be at least 6 characters")
-      .required("Password is required"),
+      .required('Password is required')
+      .min(6, 'Password must be at least 6 characters')
   });
 
-  const handleSubmit = async (values, { resetForm, setSubmitting }) => {
+  const handleSubmit = async (values, { setSubmitting, setStatus, resetForm }) => {
     try {
-      const response = await fetch("https://jsonplaceholder.typicode.com/users", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+      // Mock API call
+      const response = await fetch('https://jsonplaceholder.typicode.com/users', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify(values),
       });
-
-      await response.json();
-      alert("User registered successfully!");
-      resetForm();
-    } catch (err) {
-      alert("Something went wrong!");
+      
+      if (response.ok) {
+        setStatus({ message: 'Registration successful!', type: 'success' });
+        resetForm();
+      } else {
+        throw new Error('Registration failed');
+      }
+    } catch (error) {
+      setStatus({ message: 'Registration failed. Please try again.', type: 'error' });
     } finally {
       setSubmitting(false);
     }
   };
 
   return (
-    <div className="p-4 max-w-md mx-auto mt-6">
-      <h2 className="text-xl font-bold mb-4">Register (Formik)</h2>
+    <div style={{ maxWidth: '400px', margin: '2rem auto', padding: '2rem', border: '1px solid #ccc', borderRadius: '8px' }}>
+      <h2>User Registration (Formik)</h2>
+      
       <Formik
         initialValues={initialValues}
         validationSchema={validationSchema}
         onSubmit={handleSubmit}
       >
-        {({ isSubmitting }) => (
-          <Form className="space-y-3">
-            <div>
+        {({ isSubmitting, status }) => (
+          <Form>
+            <div style={{ marginBottom: '1rem' }}>
+              <label htmlFor="username" style={{ display: 'block', marginBottom: '0.5rem' }}>
+                Username:
+              </label>
               <Field
                 type="text"
+                id="username"
                 name="username"
-                placeholder="Username"
-                className="border p-2 w-full rounded"
+                style={{ width: '100%', padding: '0.5rem', border: '1px solid #ccc', borderRadius: '4px' }}
               />
-              <ErrorMessage name="username" component="p" className="text-red-500 text-sm" />
+              <ErrorMessage name="username" component="div" style={{ color: 'red', fontSize: '0.8rem' }} />
             </div>
 
-            <div>
+            <div style={{ marginBottom: '1rem' }}>
+              <label htmlFor="email" style={{ display: 'block', marginBottom: '0.5rem' }}>
+                Email:
+              </label>
               <Field
                 type="email"
+                id="email"
                 name="email"
-                placeholder="Email"
-                className="border p-2 w-full rounded"
+                style={{ width: '100%', padding: '0.5rem', border: '1px solid #ccc', borderRadius: '4px' }}
               />
-              <ErrorMessage name="email" component="p" className="text-red-500 text-sm" />
+              <ErrorMessage name="email" component="div" style={{ color: 'red', fontSize: '0.8rem' }} />
             </div>
 
-            <div>
+            <div style={{ marginBottom: '1rem' }}>
+              <label htmlFor="password" style={{ display: 'block', marginBottom: '0.5rem' }}>
+                Password:
+              </label>
               <Field
                 type="password"
+                id="password"
                 name="password"
-                placeholder="Password"
-                className="border p-2 w-full rounded"
+                style={{ width: '100%', padding: '0.5rem', border: '1px solid #ccc', borderRadius: '4px' }}
               />
-              <ErrorMessage name="password" component="p" className="text-red-500 text-sm" />
+              <ErrorMessage name="password" component="div" style={{ color: 'red', fontSize: '0.8rem' }} />
             </div>
 
             <button
               type="submit"
               disabled={isSubmitting}
-              className="bg-green-600 text-white px-4 py-2 rounded disabled:opacity-60"
+              style={{
+                width: '100%',
+                padding: '0.75rem',
+                backgroundColor: isSubmitting ? '#ccc' : '#007bff',
+                color: 'white',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: isSubmitting ? 'not-allowed' : 'pointer'
+              }}
             >
-              {isSubmitting ? "Submitting..." : "Register"}
+              {isSubmitting ? 'Registering...' : 'Register'}
             </button>
+
+            {status && (
+              <div style={{ 
+                marginTop: '1rem', 
+                color: status.type === 'success' ? 'green' : 'red' 
+              }}>
+                {status.message}
+              </div>
+            )}
           </Form>
         )}
       </Formik>
     </div>
   );
-}
+};
+
+export default FormikForm;

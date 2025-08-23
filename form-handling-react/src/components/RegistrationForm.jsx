@@ -1,106 +1,161 @@
-import { useState } from "react";
+import React, { useState } from 'react';
 
-export default function RegistrationForm() {
-  const [username, setUsername] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-
+const ControlledForm = () => {
+  const [formData, setFormData] = useState({
+    username: '',
+    email: '',
+    password: ''
+  });
   const [errors, setErrors] = useState({});
-  const [success, setSuccess] = useState("");
-  const [submitting, setSubmitting] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitMessage, setSubmitMessage] = useState('');
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+    
+    // Clear error when user starts typing
+    if (errors[name]) {
+      setErrors(prev => ({
+        ...prev,
+        [name]: ''
+      }));
+    }
+  };
 
   const validateForm = () => {
     const newErrors = {};
-    if (!username) newErrors.username = "Username is required";
-    if (!email) newErrors.email = "Email is required";
-    if (!password) newErrors.password = "Password is required";
+    
+    if (!formData.username.trim()) {
+      newErrors.username = 'Username is required';
+    }
+    
+    if (!formData.email.trim()) {
+      newErrors.email = 'Email is required';
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      newErrors.email = 'Email is invalid';
+    }
+    
+    if (!formData.password) {
+      newErrors.password = 'Password is required';
+    } else if (formData.password.length < 6) {
+      newErrors.password = 'Password must be at least 6 characters';
+    }
+    
     return newErrors;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setSuccess("");
-
-    const validationErrors = validateForm();
-    if (Object.keys(validationErrors).length > 0) {
-      setErrors(validationErrors);
+    
+    const formErrors = validateForm();
+    if (Object.keys(formErrors).length > 0) {
+      setErrors(formErrors);
       return;
     }
-
+    
+    setIsSubmitting(true);
     setErrors({});
-    setSubmitting(true);
-
+    
     try {
-      const res = await fetch("https://jsonplaceholder.typicode.com/users", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, email, password }),
+      // Mock API call
+      const response = await fetch('https://jsonplaceholder.typicode.com/users', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
       });
-
-      await res.json();
-      setSuccess("User registered successfully!");
-      setUsername("");
-      setEmail("");
-      setPassword("");
-    } catch (err) {
-      setErrors({ api: "Something went wrong!" });
+      
+      if (response.ok) {
+        setSubmitMessage('Registration successful!');
+        setFormData({ username: '', email: '', password: '' });
+      } else {
+        throw new Error('Registration failed');
+      }
+    } catch (error) {
+      setSubmitMessage('Registration failed. Please try again.');
     } finally {
-      setSubmitting(false);
+      setIsSubmitting(false);
     }
   };
 
   return (
-    <div className="p-4 max-w-md mx-auto">
-      <h2 className="text-xl font-bold mb-4">Register (Controlled)</h2>
-
-      {errors.api && <p className="text-red-600 mb-2">{errors.api}</p>}
-      {success && <p className="text-green-600 mb-2">{success}</p>}
-
-      <form onSubmit={handleSubmit} className="space-y-3">
-        <div>
+    <div style={{ maxWidth: '400px', margin: '2rem auto', padding: '2rem', border: '1px solid #ccc', borderRadius: '8px' }}>
+      <h2>User Registration (Controlled)</h2>
+      <form onSubmit={handleSubmit}>
+        <div style={{ marginBottom: '1rem' }}>
+          <label htmlFor="username" style={{ display: 'block', marginBottom: '0.5rem' }}>
+            Username:
+          </label>
           <input
             type="text"
+            id="username"
             name="username"
-            placeholder="Username"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            className="border p-2 w-full rounded"
+            value={formData.username}
+            onChange={handleChange}
+            style={{ width: '100%', padding: '0.5rem', border: errors.username ? '1px solid red' : '1px solid #ccc', borderRadius: '4px' }}
           />
-          {errors.username && <p className="text-red-500 text-sm">{errors.username}</p>}
+          {errors.username && <span style={{ color: 'red', fontSize: '0.8rem' }}>{errors.username}</span>}
         </div>
 
-        <div>
+        <div style={{ marginBottom: '1rem' }}>
+          <label htmlFor="email" style={{ display: 'block', marginBottom: '0.5rem' }}>
+            Email:
+          </label>
           <input
             type="email"
+            id="email"
             name="email"
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="border p-2 w-full rounded"
+            value={formData.email}
+            onChange={handleChange}
+            style={{ width: '100%', padding: '0.5rem', border: errors.email ? '1px solid red' : '1px solid #ccc', borderRadius: '4px' }}
           />
-          {errors.email && <p className="text-red-500 text-sm">{errors.email}</p>}
+          {errors.email && <span style={{ color: 'red', fontSize: '0.8rem' }}>{errors.email}</span>}
         </div>
 
-        <div>
+        <div style={{ marginBottom: '1rem' }}>
+          <label htmlFor="password" style={{ display: 'block', marginBottom: '0.5rem' }}>
+            Password:
+          </label>
           <input
             type="password"
+            id="password"
             name="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="border p-2 w-full rounded"
+            value={formData.password}
+            onChange={handleChange}
+            style={{ width: '100%', padding: '0.5rem', border: errors.password ? '1px solid red' : '1px solid #ccc', borderRadius: '4px' }}
           />
-          {errors.password && <p className="text-red-500 text-sm">{errors.password}</p>}
+          {errors.password && <span style={{ color: 'red', fontSize: '0.8rem' }}>{errors.password}</span>}
         </div>
 
         <button
           type="submit"
-          disabled={submitting}
-          className="bg-blue-600 text-white px-4 py-2 rounded disabled:opacity-60"
+          disabled={isSubmitting}
+          style={{
+            width: '100%',
+            padding: '0.75rem',
+            backgroundColor: isSubmitting ? '#ccc' : '#007bff',
+            color: 'white',
+            border: 'none',
+            borderRadius: '4px',
+            cursor: isSubmitting ? 'not-allowed' : 'pointer'
+          }}
         >
-          {submitting ? "Submitting..." : "Register"}
+          {isSubmitting ? 'Registering...' : 'Register'}
         </button>
+
+        {submitMessage && (
+          <div style={{ marginTop: '1rem', color: submitMessage.includes('successful') ? 'green' : 'red' }}>
+            {submitMessage}
+          </div>
+        )}
       </form>
     </div>
   );
-}
+};
+
+export default ControlledForm;
