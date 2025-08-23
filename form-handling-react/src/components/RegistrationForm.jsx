@@ -4,20 +4,30 @@ export default function RegistrationForm() {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+
+  const [errors, setErrors] = useState({});
   const [success, setSuccess] = useState("");
   const [submitting, setSubmitting] = useState(false);
+
+  const validateForm = () => {
+    const newErrors = {};
+    if (!username) newErrors.username = "Username is required";
+    if (!email) newErrors.email = "Email is required";
+    if (!password) newErrors.password = "Password is required";
+    return newErrors;
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSuccess("");
 
-    if (!username || !email || !password) {
-      setError("All fields are required!");
+    const validationErrors = validateForm();
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
       return;
     }
 
-    setError("");
+    setErrors({});
     setSubmitting(true);
 
     try {
@@ -33,7 +43,7 @@ export default function RegistrationForm() {
       setEmail("");
       setPassword("");
     } catch (err) {
-      setError("Something went wrong!");
+      setErrors({ api: "Something went wrong!" });
     } finally {
       setSubmitting(false);
     }
@@ -43,36 +53,45 @@ export default function RegistrationForm() {
     <div className="p-4 max-w-md mx-auto">
       <h2 className="text-xl font-bold mb-4">Register (Controlled)</h2>
 
-      {error && <p className="text-red-600 mb-2">{error}</p>}
+      {errors.api && <p className="text-red-600 mb-2">{errors.api}</p>}
       {success && <p className="text-green-600 mb-2">{success}</p>}
 
       <form onSubmit={handleSubmit} className="space-y-3">
-        <input
-          type="text"
-          name="username"
-          placeholder="Username"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          className="border p-2 w-full rounded"
-        />
+        <div>
+          <input
+            type="text"
+            name="username"
+            placeholder="Username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            className="border p-2 w-full rounded"
+          />
+          {errors.username && <p className="text-red-500 text-sm">{errors.username}</p>}
+        </div>
 
-        <input
-          type="email"
-          name="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="border p-2 w-full rounded"
-        />
+        <div>
+          <input
+            type="email"
+            name="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="border p-2 w-full rounded"
+          />
+          {errors.email && <p className="text-red-500 text-sm">{errors.email}</p>}
+        </div>
 
-        <input
-          type="password"
-          name="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="border p-2 w-full rounded"
-        />
+        <div>
+          <input
+            type="password"
+            name="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="border p-2 w-full rounded"
+          />
+          {errors.password && <p className="text-red-500 text-sm">{errors.password}</p>}
+        </div>
 
         <button
           type="submit"
