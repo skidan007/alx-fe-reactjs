@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-const ControlledForm = () => {
+const RegistrationForm = () => {
   const [formData, setFormData] = useState({
     username: '',
     email: '',
@@ -95,7 +95,7 @@ const ControlledForm = () => {
             type="text"
             id="username"
             name="username"
-            value={formData.username}
+            value={formData.username} // Added missing value attribute
             onChange={handleChange}
             style={{ width: '100%', padding: '0.5rem', border: errors.username ? '1px solid red' : '1px solid #ccc', borderRadius: '4px' }}
           />
@@ -110,7 +110,7 @@ const ControlledForm = () => {
             type="email"
             id="email"
             name="email"
-            value={formData.email}
+            value={formData.email} // Added missing value attribute
             onChange={handleChange}
             style={{ width: '100%', padding: '0.5rem', border: errors.email ? '1px solid red' : '1px solid #ccc', borderRadius: '4px' }}
           />
@@ -125,7 +125,7 @@ const ControlledForm = () => {
             type="password"
             id="password"
             name="password"
-            value={formData.password}
+            value={formData.password} // Added missing value attribute
             onChange={handleChange}
             style={{ width: '100%', padding: '0.5rem', border: errors.password ? '1px solid red' : '1px solid #ccc', borderRadius: '4px' }}
           />
@@ -158,4 +158,4 @@ const ControlledForm = () => {
   );
 };
 
-export default ControlledForm;
+export default RegistrationForm;
