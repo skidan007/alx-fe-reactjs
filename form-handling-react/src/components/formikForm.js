@@ -1,18 +1,16 @@
-// src/components/FormikForm.jsx
+// src/components/formikForm.js
 import React from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
-import './Form.css'; // Reuse the same CSS
+import './Form.css';
 
 const FormikForm = () => {
-  // Define initial form values
   const initialValues = {
     username: '',
     email: '',
     password: '',
   };
 
-  // Define validation schema with Yup
   const validationSchema = Yup.object({
     username: Yup.string().required('Username is required'),
     email: Yup.string().email('Invalid email format').required('Email is required'),
@@ -21,9 +19,7 @@ const FormikForm = () => {
       .required('Password is required'),
   });
 
-  // Handle form submission
   const handleSubmit = (values, { setSubmitting, resetForm }) => {
-    // Mock API call
     console.log('Registering user with Formik:', values);
     alert(`Registration successful for ${values.username}!`);
     setSubmitting(false);
