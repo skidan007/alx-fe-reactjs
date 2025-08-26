@@ -1,7 +1,8 @@
-import { Routes, Route, Link, BrowserRouter } from 'react-router-dom'
+import { Routes, Route, Link } from 'react-router-dom'
 import Home from './components/Home'
 import About from './components/About'
 import Blog from './components/Blog'
+import BlogPost from './components/BlogPost'
 import Profile from './components/Profile'
 import ProtectedRoute from './components/ProtectedRoute'
 import Login from './components/Login'
@@ -30,7 +31,7 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/about" element={<About />} />
             <Route path="/blog" element={<Blog />} />
-            <Route path="/blog/:postId" element={<Blog />} />
+            <Route path="/blog/:postId" element={<BlogPost />} />
             <Route 
               path="/profile/*" 
               element={

@@ -1,70 +1,74 @@
-import { Routes, Route, Link, useParams, Outlet } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 
-// Mock blog posts data
+// Mock blog posts data (shared with BlogPost component)
 const blogPosts = [
-  { id: 1, title: 'Getting Started with React Router', content: 'Learn the basics of React Router and how to set up routing in your React applications.' },
-  { id: 2, title: 'Advanced Routing Techniques', content: 'Explore nested routes, protected routes, and dynamic routing in React.' },
-  { id: 3, title: 'Authentication in React Apps', content: 'Implement secure authentication flows with React Router and context API.' }
+  { 
+    id: 1, 
+    title: 'Getting Started with React Router', 
+    content: 'Learn the basics of React Router and how to set up routing in your React applications.',
+    excerpt: 'A comprehensive guide to getting started with React Router in your React applications...'
+  },
+  { 
+    id: 2, 
+    title: 'Advanced Routing Techniques', 
+    content: 'Explore nested routes, protected routes, and dynamic routing in React.',
+    excerpt: 'Discover advanced routing patterns including nested routes and authentication...'
+  },
+  { 
+    id: 3, 
+    title: 'Authentication in React Apps', 
+    content: 'Implement secure authentication flows with React Router and context API.',
+    excerpt: 'Learn how to implement secure authentication in React applications...'
+  }
 ]
 
 function Blog() {
   return (
     <div className="card">
       <h1>Blog</h1>
-      <Routes>
-        <Route path="/" element={<BlogList />} />
-        <Route path=":postId" element={<BlogPost />} />
-      </Routes>
-      <Outlet />
-    </div>
-  )
-}
-
-function BlogList() {
-  return (
-    <div>
-      <h2>Latest Posts</h2>
-      <div style={{ display: 'grid', gap: '1rem', marginTop: '1rem' }}>
+      <p style={{ color: '#666', marginBottom: '2rem' }}>
+        Welcome to our blog! Here you'll find articles about React, React Router, and web development.
+      </p>
+      
+      <div style={{ display: 'grid', gap: '1.5rem', marginTop: '1rem' }}>
         {blogPosts.map(post => (
-          <div key={post.id} style={{ padding: '1rem', border: '1px solid #ddd', borderRadius: '4px' }}>
-            <h3>{post.title}</h3>
-            <p>{post.content}</p>
-            <Link to={`/blog/${post.id}`} className="btn btn-primary">
-              Read More
-            </Link>
-          </div>
+          <article key={post.id} style={{ 
+            padding: '1.5rem', 
+            border: '1px solid #e0e0e0', 
+            borderRadius: '8px',
+            backgroundColor: 'white',
+            boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+          }}>
+            <h2 style={{ margin: '0 0 0.5rem 0', color: '#2c3e50' }}>
+              {post.title}
+            </h2>
+            
+            <p style={{ color: '#666', marginBottom: '1rem' }}>
+              {post.excerpt || post.content}
+            </p>
+            
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <Link to={`/blog/${post.id}`} className="btn btn-primary">
+                Read More
+              </Link>
+              
+              <span style={{ color: '#999', fontSize: '0.9rem' }}>
+                Post #{post.id}
+              </span>
+            </div>
+          </article>
         ))}
       </div>
-    </div>
-  )
-}
-
-function BlogPost() {
-  const { postId } = useParams()
-  const post = blogPosts.find(p => p.id === parseInt(postId))
-
-  if (!post) {
-    return (
-      <div>
-        <h2>Post Not Found</h2>
-        <p>The blog post you're looking for doesn't exist.</p>
-        <Link to="/blog" className="btn btn-primary">
-          Back to Blog
-        </Link>
-      </div>
-    )
-  }
-
-  return (
-    <div>
-      <Link to="/blog" className="btn btn-primary" style={{ marginBottom: '1rem' }}>
-        ← Back to Blog
-      </Link>
-      <h2>{post.title}</h2>
-      <p>{post.content}</p>
-      <div style={{ marginTop: '2rem', padding: '1rem', backgroundColor: '#f5f5f5', borderRadius: '4px' }}>
-        <h3>More Content</h3>
-        <p>This is additional content for the blog post. In a real application, this would come from a database or CMS.</p>
+      
+      <div style={{ 
+        marginTop: '2rem', 
+        padding: '1.5rem', 
+        backgroundColor: '#f8f9fa', 
+        borderRadius: '8px',
+        textAlign: 'center'
+      }}>
+        <h3>More Content Coming Soon!</h3>
+        <p>We're constantly working on new content. Stay tuned for more React tutorials and best practices.</p>
       </div>
     </div>
   )
